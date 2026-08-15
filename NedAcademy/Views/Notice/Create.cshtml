@@ -1,0 +1,55 @@
+@model NedAcademy.Models.NoticeModel
+@{
+  ViewData["Title"]      = "Post Notice";
+  ViewData["Breadcrumb"] = "Notices";
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Post New Notice</h1>
+    <p class="page-subtitle">Publish an announcement to the university board</p>
+  </div>
+  <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-head"><div class="card-head-title">Notice Details</div></div>
+      <div class="card-body">
+        <form asp-action="Create" method="post">
+          <div class="form-group">
+            <label asp-for="Title" class="form-label">Notice Title <span class="req">*</span></label>
+            <input asp-for="Title" class="form-control" placeholder="e.g. Mid-Term Examination Schedule" />
+            <span asp-validation-for="Title" class="invalid-feedback"></span>
+          </div>
+          <div class="form-group">
+            <label asp-for="Content" class="form-label">Notice Content <span class="req">*</span></label>
+            <textarea asp-for="Content" class="form-control" rows="6"
+                      placeholder="Write the full notice content here..."></textarea>
+            <span asp-validation-for="Content" class="invalid-feedback"></span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label asp-for="PublishedDate" class="form-label">Published Date</label>
+              <input asp-for="PublishedDate" type="date" class="form-control" />
+            </div>
+            <div class="form-group d-flex align-items-end">
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <input asp-for="IsActive" class="form-check-input" id="isActiveChk" style="width:18px;height:18px" />
+                <label for="isActiveChk" class="form-label mb-0">Make Active (visible on dashboard)</label>
+              </div>
+            </div>
+          </div>
+          <hr class="my-3" />
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-1"></i>Publish Notice</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts { @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} }

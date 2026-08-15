@@ -1,0 +1,112 @@
+@model NedAcademy.Models.TeacherModel
+@{
+  ViewData["Title"]      = "Edit Teacher";
+  ViewData["Breadcrumb"] = "Teachers";
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Edit Teacher</h1>
+    <p class="page-subtitle">Updating details for @Model.Name</p>
+  </div>
+  <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+</div>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+  <input asp-for="Id" type="hidden" />
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Photo</div></div>
+        <div class="card-body text-center">
+          @if (!string.IsNullOrEmpty(Model.ImageUrl))
+          {
+            <img id="imgPreview" src="/@Model.ImageUrl" alt="@Model.Name"
+                 style="width:150px;height:150px;object-fit:cover;border-radius:var(--r-md);border:3px solid var(--primary-light);cursor:pointer"
+                 onclick="document.getElementById('imageFile').click()" />
+            <div id="imgPlaceholder" style="display:none"></div>
+          }
+          else
+          {
+            <div id="imgPlaceholder" class="d-flex flex-column align-items-center justify-content-center"
+                 style="height:150px;border:2px dashed var(--border);border-radius:var(--r-md);background:var(--body-bg);cursor:pointer"
+                 onclick="document.getElementById('imageFile').click()">
+              <i class="fas fa-camera" style="font-size:2rem;color:var(--text-muted)"></i>
+              <span style="font-size:.78rem;color:var(--text-muted);margin-top:8px">Click to upload photo</span>
+            </div>
+            <img id="imgPreview" src="" style="display:none;width:150px;height:150px;object-fit:cover;border-radius:var(--r-md)" />
+          }
+          <input type="file" id="imageFile" name="imageFile" accept="image/*" class="d-none"
+                 onchange="previewImage(this,'imgPreview','imgPlaceholder')" />
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Teacher Information</div></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label asp-for="Name" class="form-label">Full Name <span class="req">*</span></label>
+              <input asp-for="Name" class="form-control" />
+              <span asp-validation-for="Name" class="invalid-feedback"></span>
+            </div>
+            <div class="form-group">
+              <label asp-for="Email" class="form-label">Email <span class="req">*</span></label>
+              <input asp-for="Email" class="form-control" />
+              <span asp-validation-for="Email" class="invalid-feedback"></span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label asp-for="Phone" class="form-label">Phone</label>
+              <input asp-for="Phone" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label asp-for="Gender" class="form-label">Gender <span class="req">*</span></label>
+              <select asp-for="Gender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label asp-for="Qualification" class="form-label">Qualification</label>
+              <input asp-for="Qualification" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label asp-for="DepartmentId" class="form-label">Department <span class="req">*</span></label>
+              <select asp-for="DepartmentId" class="form-select"
+                      asp-items="@(new SelectList(ViewBag.Departments,"Id","Name"))">
+                <option value="">— Select —</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label asp-for="JoiningDate" class="form-label">Joining Date</label>
+              <input asp-for="JoiningDate" type="date" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label asp-for="Salary" class="form-label">Salary (PKR)</label>
+              <input asp-for="Salary" class="form-control" type="number" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label asp-for="Address" class="form-label">Address</label>
+            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+          </div>
+          <hr class="my-3" />
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Update Teacher</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+@section Scripts { @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} }

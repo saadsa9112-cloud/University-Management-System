@@ -1,0 +1,129 @@
+@model NedAcademy.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account – NED Academy";
+    Layout = "_LoginLayout";
+}
+
+<div class="auth-split">
+
+  <!-- Left branding panel -->
+  <div class="auth-panel-left">
+    <div class="auth-brand">
+      <div class="auth-logo">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <h1 class="auth-brand-name">NED Academy</h1>
+      <p class="auth-brand-tagline">University Management System</p>
+    </div>
+    <div class="auth-features">
+      <div class="auth-feat"><i class="fas fa-check-circle"></i> Faculty account registration</div>
+      <div class="auth-feat"><i class="fas fa-check-circle"></i> Access students &amp; notices</div>
+      <div class="auth-feat"><i class="fas fa-check-circle"></i> View all departments &amp; courses</div>
+      <div class="auth-feat"><i class="fas fa-shield-halved" style="color:#fde68a"></i> Admin accounts are created by Admin only</div>
+    </div>
+    <div class="auth-panel-footer">© @DateTime.Now.Year NED Academy. All rights reserved.</div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="auth-panel-right">
+    <div class="auth-form-wrap">
+
+      <div class="auth-form-head">
+        <div class="auth-role-badge">
+          <i class="fas fa-chalkboard-user"></i>
+          <span>Faculty Registration</span>
+        </div>
+        <h2 class="auth-form-title" style="margin-top:14px">Create Faculty Account</h2>
+        <p class="auth-form-sub">Register as a Faculty member. Admin accounts are managed by the Administrator.</p>
+      </div>
+
+      @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+      {
+        <div class="alert alert-danger">
+          <i class="fas fa-circle-exclamation me-2"></i>
+          <div asp-validation-summary="All" style="margin:0;display:inline"></div>
+        </div>
+      }
+
+      <form asp-action="Register" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- Hidden: role is always Faculty for public registration -->
+        <input type="hidden" name="Role" value="Faculty" />
+
+        <div class="form-group">
+          <label asp-for="Email" class="form-label fw-semibold">Email Address</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-envelope auth-input-ico"></i>
+            <input asp-for="Email" class="form-control auth-input"
+                   placeholder="your@email.com" autocomplete="email" />
+          </div>
+          <span asp-validation-for="Email" class="invalid-feedback"></span>
+        </div>
+
+        <div class="form-group">
+          <label asp-for="Password" class="form-label fw-semibold">Password</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-lock auth-input-ico"></i>
+            <input asp-for="Password" type="password" class="form-control auth-input"
+                   placeholder="Min. 6 characters" autocomplete="new-password" id="pwdField" />
+            <button type="button" class="auth-eye" onclick="togglePwd()" tabindex="-1">
+              <i class="fas fa-eye" id="eyeIco"></i>
+            </button>
+          </div>
+          <span asp-validation-for="Password" class="invalid-feedback"></span>
+        </div>
+
+        <div class="form-group">
+          <label asp-for="ConfirmPassword" class="form-label fw-semibold">Confirm Password</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-lock auth-input-ico"></i>
+            <input asp-for="ConfirmPassword" type="password" class="form-control auth-input"
+                   placeholder="Repeat password" autocomplete="new-password" id="cpwdField" />
+            <button type="button" class="auth-eye" onclick="toggleCPwd()" tabindex="-1">
+              <i class="fas fa-eye" id="ceyeIco"></i>
+            </button>
+          </div>
+          <span asp-validation-for="ConfirmPassword" class="invalid-feedback"></span>
+        </div>
+
+        <!-- Info notice -->
+        <div class="auth-info-notice">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <strong>Faculty Access:</strong> You can add/edit Students and Notices.
+            For Admin access, contact the system administrator.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100" style="padding:13px;font-size:1rem;font-weight:700;margin-top:6px">
+          <i class="fas fa-user-plus me-2"></i>Create Faculty Account
+        </button>
+      </form>
+
+      <div class="auth-divider"><span>Already have an account?</span></div>
+
+      <a asp-action="Login" class="btn w-100"
+         style="padding:12px;border:2px solid var(--border);color:var(--text-main);font-weight:600;border-radius:var(--r-md);background:transparent;transition:var(--transition-s)"
+         onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-main)'">
+        <i class="fas fa-sign-in-alt me-2"></i>Back to Login
+      </a>
+
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+  <script>
+    function togglePwd() {
+      const f = document.getElementById('pwdField'); const i = document.getElementById('eyeIco');
+      f.type === 'password' ? (f.type = 'text', i.className = 'fas fa-eye-slash') : (f.type = 'password', i.className = 'fas fa-eye');
+    }
+    function toggleCPwd() {
+      const f = document.getElementById('cpwdField'); const i = document.getElementById('ceyeIco');
+      f.type === 'password' ? (f.type = 'text', i.className = 'fas fa-eye-slash') : (f.type = 'password', i.className = 'fas fa-eye');
+    }
+  </script>
+}

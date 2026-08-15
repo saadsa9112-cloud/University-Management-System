@@ -1,0 +1,53 @@
+@model NedAcademy.Models.DepartmentModel
+@{
+  ViewData["Title"]      = "Edit Department";
+  ViewData["Breadcrumb"] = "Departments";
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Edit Department</h1>
+    <p class="page-subtitle">Updating: @Model.Name</p>
+  </div>
+  <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-head"><div class="card-head-title">Department Information</div></div>
+      <div class="card-body">
+        <form asp-action="Edit" method="post">
+          <input asp-for="Id" type="hidden" />
+          <div class="form-row">
+            <div class="form-group">
+              <label asp-for="Name" class="form-label">Department Name <span class="req">*</span></label>
+              <input asp-for="Name" class="form-control" />
+              <span asp-validation-for="Name" class="invalid-feedback"></span>
+            </div>
+            <div class="form-group">
+              <label asp-for="Code" class="form-label">Department Code <span class="req">*</span></label>
+              <input asp-for="Code" class="form-control" />
+              <span asp-validation-for="Code" class="invalid-feedback"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label asp-for="HeadOfDept" class="form-label">Head of Department</label>
+            <input asp-for="HeadOfDept" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label asp-for="Description" class="form-label">Description</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+          </div>
+          <hr class="my-3" />
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Update Department</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts { @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} }

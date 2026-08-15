@@ -1,0 +1,94 @@
+@model IEnumerable<NedAcademy.Models.TeacherModel>
+@{
+  ViewData["Title"]      = "Teachers";
+  ViewData["Breadcrumb"] = "Teachers";
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><i class="fas fa-chalkboard-user me-2" style="color:var(--success)"></i>Teachers</h1>
+    <p class="page-subtitle">Manage all faculty members across departments</p>
+  </div>
+  <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Add Teacher</a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="card-head-title">All Teachers</div>
+    <div class="card-head-sub">@Model.Count() faculty members</div>
+  </div>
+  @if (!Model.Any())
+  {
+    <div class="empty-state">
+      <div class="empty-ico"><i class="fas fa-chalkboard-user"></i></div>
+      <h3 class="empty-title">No Teachers Found</h3>
+      <p class="empty-text">Add your first faculty member to get started.</p>
+      <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add Teacher</a>
+    </div>
+  }
+  else
+  {
+    <div class="table-wrap">
+      <table id="teachersTable" class="tbl">
+        <thead>
+          <tr>
+            <th>Teacher</th>
+            <th>Department</th>
+            <th>Qualification</th>
+            <th>Gender</th>
+            <th>Salary (PKR)</th>
+            <th>Joining Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var t in Model)
+          {
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  @if (!string.IsNullOrEmpty(t.ImageUrl))
+                  {
+                    <img src="/@t.ImageUrl" class="tbl-av" alt="@t.Name" />
+                  }
+                  else
+                  {
+                    <div class="tbl-av-ph av-c@((t.Id%5)+1)">@t.Name[0]</div>
+                  }
+                  <div>
+                    <div class="tbl-name">@t.Name</div>
+                    <div class="tbl-sub">@t.Email</div>
+                  </div>
+                </div>
+              </td>
+              <td>@(t.Department?.Name ?? "—")</td>
+              <td>@(t.Qualification ?? "—")</td>
+              <td><span class="badge @(t.Gender=="Female"?"badge-female":"badge-male")">@t.Gender</span></td>
+              <td>@t.Salary.ToString("N0")</td>
+              <td>@t.JoiningDate.ToString("MMM dd, yyyy")</td>
+              <td>
+                <div class="tbl-actions">
+                  <a asp-action="Details" asp-route-id="@t.Id" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>
+                  <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-warning btn-sm"><i class="fas fa-pen"></i></a>
+                  @if (User.IsInRole("Admin"))
+                  {
+                    <form asp-action="Delete" asp-route-id="@t.Id" method="post" data-no-loading id="del-t-@t.Id">
+                      @Html.AntiForgeryToken()
+                      <button type="button" class="btn btn-danger btn-sm"
+                              onclick="confirmDelete(document.getElementById('del-t-@t.Id'),'@Html.Raw(t.Name.Replace("'","\\'"))')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+@section Scripts {
+<script>$(document).ready(function(){initDataTable('teachersTable');});</script>
+}

@@ -1,0 +1,224 @@
+@model NedAcademy.Models.ViewModels.DashboardViewModel
+@{
+  ViewData["Title"]      = "Dashboard";
+  ViewData["Breadcrumb"] = "Dashboard";
+}
+
+<!-- ── STAT CARDS ── -->
+<div class="stats-grid">
+  <div class="stat-card clr-indigo">
+    <div class="stat-card-top">
+      <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+      <span class="stat-pill">Active</span>
+    </div>
+    <div class="stat-val" id="cnt-students">0</div>
+    <div class="stat-lbl">Total Students</div>
+  </div>
+  <div class="stat-card clr-green">
+    <div class="stat-card-top">
+      <div class="stat-icon"><i class="fas fa-chalkboard-user"></i></div>
+      <span class="stat-pill">Active</span>
+    </div>
+    <div class="stat-val" id="cnt-teachers">0</div>
+    <div class="stat-lbl">Total Teachers</div>
+  </div>
+  <div class="stat-card clr-amber">
+    <div class="stat-card-top">
+      <div class="stat-icon"><i class="fas fa-building-columns"></i></div>
+    </div>
+    <div class="stat-val" id="cnt-depts">0</div>
+    <div class="stat-lbl">Departments</div>
+  </div>
+  <div class="stat-card clr-cyan">
+    <div class="stat-card-top">
+      <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+    </div>
+    <div class="stat-val" id="cnt-courses">0</div>
+    <div class="stat-lbl">Courses</div>
+  </div>
+</div>
+
+<!-- ── CHARTS ── -->
+<div class="charts-grid">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-head-title">Students by Department</div>
+        <div class="card-head-sub">Current enrollment distribution</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <canvas id="chartStudents" style="max-height:270px"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-head-title">Faculty by Department</div>
+        <div class="card-head-sub">Teacher allocation</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <canvas id="chartTeachers" style="max-height:270px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ── RECENT DATA ── -->
+<div class="row g-4">
+  <!-- Recent Students -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-head-title">Recent Admissions</div>
+          <div class="card-head-sub">Latest @Model.RecentStudents.Count student enrollments</div>
+        </div>
+        <a asp-controller="Student" asp-action="Index" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-arrow-right me-1"></i>View All
+        </a>
+      </div>
+      @if (!Model.RecentStudents.Any())
+      {
+        <div class="empty-state">
+          <div class="empty-ico"><i class="fas fa-user-graduate"></i></div>
+          <p class="empty-text">No students enrolled yet.</p>
+          <a asp-controller="Student" asp-action="Create" class="btn btn-primary btn-sm">Add First Student</a>
+        </div>
+      }
+      else
+      {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Roll No</th>
+                <th>Department</th>
+                <th>Enrolled</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var s in Model.RecentStudents)
+              {
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      @if (!string.IsNullOrEmpty(s.ImageUrl))
+                      {
+                        <img src="/@s.ImageUrl" class="tbl-av" alt="@s.Name">
+                      }
+                      else
+                      {
+                        <div class="tbl-av-ph av-c@((s.Id%5)+1)">@s.Name[0]</div>
+                      }
+                      <div>
+                        <div class="tbl-name">@s.Name</div>
+                        <div class="tbl-sub">@s.Email</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-primary">@s.RollNumber</span></td>
+                  <td>@(s.Department?.Name ?? "—")</td>
+                  <td>@s.EnrollmentDate.ToString("MMM dd, yyyy")</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Notices -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-head">
+        <div>
+          <div class="card-head-title">Latest Notices</div>
+        </div>
+        <a asp-controller="Notice" asp-action="Index" class="btn btn-outline-primary btn-sm">View All</a>
+      </div>
+      <div class="card-body" style="padding:16px">
+        @if (!Model.RecentNotices.Any())
+        {
+          <div class="text-center py-4">
+            <i class="fas fa-bell" style="font-size:2rem;color:var(--text-muted)"></i>
+            <p class="text-muted mt-3" style="font-size:.85rem">No notices published yet.</p>
+          </div>
+        }
+        else
+        {
+          <div class="d-flex flex-column gap-3">
+            @foreach (var n in Model.RecentNotices)
+            {
+              <div class="notice-card">
+                <div class="d-flex gap-3">
+                  <div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:6px"></div>
+                  <div>
+                    <div class="fw-700" style="font-size:.88rem">@n.Title</div>
+                    <div style="font-size:.78rem;color:var(--text-sub);margin-top:3px">
+                      @(n.Content.Length > 85 ? n.Content.Substring(0, 85) + "…" : n.Content)
+                    </div>
+                    <div style="font-size:.72rem;color:var(--text-muted);margin-top:6px">
+                      <i class="fas fa-calendar-alt me-1"></i>@n.PublishedDate.ToString("MMM dd, yyyy")
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <div class="card-foot text-center">
+        <a asp-controller="Notice" asp-action="Create" class="btn btn-primary btn-sm w-100">
+          <i class="fas fa-plus me-1"></i>Post New Notice
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Counter animations
+  animateCounter(document.getElementById('cnt-students'), @Model.TotalStudents);
+  animateCounter(document.getElementById('cnt-teachers'), @Model.TotalTeachers);
+  animateCounter(document.getElementById('cnt-depts'),    @Model.TotalDepartments);
+  animateCounter(document.getElementById('cnt-courses'),  @Model.TotalCourses);
+
+  const deptNames  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DepartmentNames));
+  const studData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StudentsByDepartment));
+  const teachData  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TeachersByDepartment));
+  const palette    = ['rgba(99,102,241,.82)','rgba(139,92,246,.82)','rgba(6,182,212,.82)','rgba(16,185,129,.82)','rgba(245,158,11,.82)'];
+
+  // Bar chart – students by department
+  new Chart(document.getElementById('chartStudents'), {
+    type: 'bar',
+    data: { labels: deptNames, datasets: [{ label:'Students', data: studData, backgroundColor: palette, borderRadius:6, borderSkipped:false }] },
+    options: {
+      responsive:true,
+      plugins:{ legend:{display:false} },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, font:{family:'Inter',size:11} }, grid:{color:'rgba(0,0,0,.04)'} },
+        x:{ ticks:{ font:{family:'Inter',size:11} }, grid:{display:false} }
+      }
+    }
+  });
+
+  // Doughnut chart – teachers by department
+  new Chart(document.getElementById('chartTeachers'), {
+    type: 'doughnut',
+    data: { labels: deptNames, datasets: [{ data: teachData, backgroundColor: palette, borderWidth:0, hoverOffset:5 }] },
+    options: {
+      responsive:true,
+      cutout:'62%',
+      plugins:{
+        legend:{ position:'bottom', labels:{ font:{family:'Inter',size:11}, padding:14, usePointStyle:true } }
+      }
+    }
+  });
+});
+</script>
+}

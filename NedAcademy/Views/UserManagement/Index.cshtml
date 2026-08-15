@@ -1,0 +1,303 @@
+@model List<NedAcademy.Models.ViewModels.UserListViewModel>
+@{
+    ViewData["Title"]      = "User Management";
+    ViewData["Breadcrumb"] = "User Management";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fas fa-users-cog me-2" style="color:var(--primary)"></i>User Management</h1>
+        <p class="page-subtitle">Manage system users and their roles — Admin only</p>
+    </div>
+    <a asp-action="CreateStaff" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> Add User
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-head">
+        <div class="card-head-title">All System Users</div>
+        <div class="card-head-sub">@Model.Count total accounts</div>
+    </div>
+
+    <div class="table-wrap">
+        <table id="usersTable" class="tbl">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Role(s)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="tbl-av-ph av-c1">@user.Email[0].ToString().ToUpper()</div>
+                                <!-- Clickable email opens detail modal -->
+                                <div class="tbl-name user-link"
+                                     style="cursor:pointer;color:var(--primary);text-decoration:underline;text-underline-offset:3px"
+                                     onclick="openUserModal('@user.Id')">
+                                    @user.Email
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            @foreach (var role in user.Roles)
+                            {
+                                <span class="badge @(role == "Admin" ? "badge-primary" : "badge-success") me-1">
+                                    <i class="fas @(role == "Admin" ? "fa-shield-halved" : "fa-chalkboard-user") me-1"></i>@role
+                                </span>
+                            }
+                            @if (!user.Roles.Any())
+                            {
+                                <span class="badge badge-secondary">No Role</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="tbl-actions">
+                                <!-- Details button -->
+                                <button type="button" class="btn btn-info btn-sm" onclick="openUserModal('@user.Id')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @if (user.Email != User.Identity!.Name)
+                                {
+                                    <form asp-action="Delete" method="post" data-no-loading id="del-u-@user.Id" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                                onclick="confirmDelete(document.getElementById('del-u-@user.Id'), '@user.Email')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary"><i class="fas fa-lock me-1"></i>You</span>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Role Info Cards -->
+<div class="card mt-4">
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="d-flex align-items-start gap-3">
+                    <div style="width:44px;height:44px;border-radius:var(--r-sm);background:rgba(99,102,241,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <i class="fas fa-shield-halved" style="color:var(--primary)"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:.9rem;margin-bottom:4px">Admin Role</div>
+                        <div style="font-size:.82rem;color:var(--text-sub)">
+                            Full access — Create, Edit, and <strong>Delete</strong> all records. Manages all users.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start gap-3">
+                    <div style="width:44px;height:44px;border-radius:var(--r-sm);background:var(--success-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <i class="fas fa-chalkboard-user" style="color:var(--success)"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:.9rem;margin-bottom:4px">Faculty Role</div>
+                        <div style="font-size:.82rem;color:var(--text-sub)">
+                            Can add/edit Students and Notices. Cannot delete Departments, Courses, or Teachers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Modals {
+<!-- ══════════════════════════════════════════
+     USER DETAIL MODAL
+══════════════════════════════════════════ -->
+<div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:var(--r-lg);border:none;box-shadow:var(--card-shadow-h)">
+
+      <!-- Header -->
+      <div class="modal-header" style="border-bottom:1px solid var(--border);padding:20px 24px">
+        <div class="d-flex align-items-center gap-3">
+          <div id="modalAvatar" class="tbl-av-ph av-c1" style="width:46px;height:46px;font-size:1.1rem;border-radius:var(--r-sm)"></div>
+          <div>
+            <h5 class="modal-title mb-0" id="userDetailModalLabel" style="font-weight:700">User Details</h5>
+            <div id="modalEmail" style="font-size:.82rem;color:var(--text-muted)"></div>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body" style="padding:24px">
+
+        <!-- Info rows -->
+        <div class="modal-info-grid">
+          <div class="modal-info-row">
+            <div class="modal-info-label"><i class="fas fa-envelope me-2"></i>Email</div>
+            <div class="modal-info-val" id="mEmail">—</div>
+          </div>
+          <div class="modal-info-row">
+            <div class="modal-info-label"><i class="fas fa-user-tag me-2"></i>Role</div>
+            <div class="modal-info-val" id="mRole">—</div>
+          </div>
+          <div class="modal-info-row">
+            <div class="modal-info-label"><i class="fas fa-circle-check me-2"></i>Email Confirmed</div>
+            <div class="modal-info-val" id="mConfirmed">—</div>
+          </div>
+          <div class="modal-info-row">
+            <div class="modal-info-label"><i class="fas fa-lock me-2"></i>Account Status</div>
+            <div class="modal-info-val" id="mStatus">—</div>
+          </div>
+          <div class="modal-info-row">
+            <div class="modal-info-label"><i class="fas fa-triangle-exclamation me-2"></i>Failed Attempts</div>
+            <div class="modal-info-val" id="mFailed">—</div>
+          </div>
+        </div>
+
+        <!-- Password Reset section -->
+        <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border)">
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <i class="fas fa-key" style="color:var(--warning)"></i> Reset Password
+          </div>
+
+          <div id="pwdAlert" style="display:none" class="alert mb-3"></div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-size:.83rem">New Password</label>
+            <div class="auth-input-wrap">
+              <i class="fas fa-lock auth-input-ico"></i>
+              <input type="password" id="newPwd" class="form-control auth-input" placeholder="Min. 6 characters" />
+              <button type="button" class="auth-eye" onclick="toggleModalPwd('newPwd','eyeNew')" tabindex="-1">
+                <i class="fas fa-eye" id="eyeNew"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-size:.83rem">Confirm New Password</label>
+            <div class="auth-input-wrap">
+              <i class="fas fa-lock auth-input-ico"></i>
+              <input type="password" id="confPwd" class="form-control auth-input" placeholder="Repeat password" />
+              <button type="button" class="auth-eye" onclick="toggleModalPwd('confPwd','eyeConf')" tabindex="-1">
+                <i class="fas fa-eye" id="eyeConf"></i>
+              </button>
+            </div>
+          </div>
+
+          <input type="hidden" id="modalUserId" />
+          <button type="button" class="btn btn-warning" onclick="resetPassword()" style="font-weight:600">
+            <i class="fas fa-rotate-right me-1"></i>Reset Password
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+@section Scripts {
+<script>
+$(document).ready(function () {
+  initDataTable('usersTable', { pageLength: 25 });
+});
+
+function openUserModal(userId) {
+  // Reset state
+  $('#pwdAlert').hide();
+  $('#newPwd, #confPwd').val('');
+  $('#modalUserId').val(userId);
+  // Show spinner placeholder
+  $('#mEmail,#mRole,#mConfirmed,#mStatus,#mFailed').html('<span class="text-muted">Loading…</span>');
+  // Show native Bootstrap 5 modal
+  var modalEl = document.getElementById('userDetailModal');
+  var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modalInstance.show();
+
+  $.get('/UserManagement/Details', { id: userId }, function(data) {
+    var letter = (data.email || '?')[0].toUpperCase();
+    $('#modalAvatar').text(letter);
+    $('#modalEmail').text(data.email);
+    $('#mEmail').text(data.email);
+
+    // Roles
+    var roleBadges = '';
+    if (data.roles && data.roles.length > 0) {
+      data.roles.forEach(function(r) {
+        var cls   = r === 'Admin' ? 'badge-primary' : 'badge-success';
+        var icon  = r === 'Admin' ? 'fa-shield-halved' : 'fa-chalkboard-user';
+        roleBadges += '<span class="badge ' + cls + ' me-1"><i class="fas ' + icon + ' me-1"></i>' + r + '</span>';
+      });
+    } else { roleBadges = '<span class="badge badge-secondary">No Role</span>'; }
+    $('#mRole').html(roleBadges);
+
+    // Email confirmed
+    $('#mConfirmed').html(data.emailConfirmed
+      ? '<span class="badge badge-success"><i class="fas fa-check me-1"></i>Yes</span>'
+      : '<span class="badge badge-danger"><i class="fas fa-xmark me-1"></i>No</span>');
+
+    // Lockout status
+    if (data.isLockedOut) {
+      $('#mStatus').html('<span class="badge badge-danger"><i class="fas fa-lock me-1"></i>Locked until ' + data.lockoutEnd + '</span>');
+    } else {
+      $('#mStatus').html('<span class="badge badge-success"><i class="fas fa-unlock me-1"></i>Active</span>');
+    }
+
+    // Failed attempts
+    $('#mFailed').html('<span style="font-weight:600">' + data.accessFailedCount + '</span> failed login attempt(s)');
+  });
+}
+
+function resetPassword() {
+  var userId   = $('#modalUserId').val();
+  var newPwd   = $('#newPwd').val();
+  var confPwd  = $('#confPwd').val();
+  var token    = $('input[name="__RequestVerificationToken"]').first().val();
+
+  if (!newPwd || newPwd.length < 6) {
+    showPwdAlert('Password must be at least 6 characters.', 'danger'); return;
+  }
+  if (newPwd !== confPwd) {
+    showPwdAlert('Passwords do not match.', 'danger'); return;
+  }
+
+  $.post('/UserManagement/ResetPassword', {
+    id: userId, newPassword: newPwd, confirmPassword: confPwd,
+    __RequestVerificationToken: token
+  }, function(res) {
+    if (res.success) {
+      showPwdAlert(res.message, 'success');
+      $('#newPwd, #confPwd').val('');
+    } else {
+      showPwdAlert(res.message, 'danger');
+    }
+  });
+}
+
+function showPwdAlert(msg, type) {
+  $('#pwdAlert')
+    .removeClass('alert-success alert-danger')
+    .addClass('alert-' + type)
+    .html('<i class="fas fa-' + (type==='success'?'check-circle':'circle-exclamation') + ' me-2"></i>' + msg)
+    .show();
+}
+
+function toggleModalPwd(fieldId, iconId) {
+  var f = document.getElementById(fieldId), i = document.getElementById(iconId);
+  f.type === 'password' ? (f.type='text', i.className='fas fa-eye-slash') : (f.type='password', i.className='fas fa-eye');
+}
+</script>
+}
