@@ -28,11 +28,7 @@ namespace NedAcademy.Controllers
         public IActionResult Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
-            {
-                if (User.IsInRole("Admin"))
-                    return RedirectToAction("Index", "UserManagement");
                 return RedirectToAction("Index", "Home");
-            }
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -70,10 +66,6 @@ namespace NedAcademy.Controllers
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
 
-                // Admin ko direct User Management par redirect karein
-                if (model.Role == "Admin")
-                    return RedirectToAction("Index", "UserManagement");
-                    
                 return RedirectToAction("Index", "Home");
             }
 

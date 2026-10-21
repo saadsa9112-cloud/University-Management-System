@@ -220,6 +220,242 @@ namespace NedAcademy.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("NedAcademy.Models.AdmissionApplicationModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("AdminRemarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ApplicationNo")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
+
+                    b.Property<DateTime>("AppliedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ChallanNo")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Cnic")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DocumentUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int?>("EnrolledStudentId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("FeeAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("FeeStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GeneratedRollNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("GuardianName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("MarksPercentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int?>("PassingYear")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<string>("PreviousEducation")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PreviousInstitute")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("EnrolledStudentId");
+
+                    b.ToTable("Admissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Gulshan-e-Iqbal, Block 6, Karachi",
+                            AdminRemarks = "New online application submitted. Awaiting document verification.",
+                            ApplicationNo = "NED-2026-001",
+                            AppliedDate = new DateTime(2026, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Cnic = "42101-1234567-2",
+                            CourseId = 1,
+                            DateOfBirth = new DateTime(2005, 4, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartmentId = 1,
+                            Email = "zainab.tariq@gmail.com",
+                            FeeAmount = 65000m,
+                            FeeStatus = "Unpaid",
+                            FullName = "Zainab Tariq",
+                            Gender = "Female",
+                            GuardianName = "Tariq Mehmood",
+                            MarksPercentage = 84.50m,
+                            PassingYear = 2025,
+                            Phone = "0321-9876543",
+                            PreviousEducation = "HSC Pre-Engineering",
+                            PreviousInstitute = "Aga Khan Higher Secondary School",
+                            Status = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "North Nazimabad, Karachi",
+                            AdminRemarks = "Documents under review. Marks meet minimum eligibility criteria.",
+                            ApplicationNo = "NED-2026-002",
+                            AppliedDate = new DateTime(2026, 8, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Cnic = "42201-9876543-1",
+                            CourseId = 1,
+                            DateOfBirth = new DateTime(2004, 9, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartmentId = 1,
+                            Email = "hamza.bilal@outlook.com",
+                            FeeAmount = 65000m,
+                            FeeStatus = "Unpaid",
+                            FullName = "Hamza Bilal",
+                            Gender = "Male",
+                            GuardianName = "Bilal Ahmed",
+                            MarksPercentage = 76.20m,
+                            PassingYear = 2025,
+                            Phone = "0333-5551234",
+                            PreviousEducation = "ICS Computer Science",
+                            PreviousInstitute = "DJ Sindh Govt Science College",
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "PECHS Block 2, Karachi",
+                            AdminRemarks = "Shortlisted for admission offer. Fee voucher generated and emailed.",
+                            ApplicationNo = "NED-2026-003",
+                            AppliedDate = new DateTime(2026, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Cnic = "42301-4455667-4",
+                            CourseId = 3,
+                            DateOfBirth = new DateTime(2005, 1, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartmentId = 2,
+                            Email = "ayesha.s@yahoo.com",
+                            FeeAmount = 70000m,
+                            FeeStatus = "Unpaid",
+                            FullName = "Ayesha Siddiqui",
+                            Gender = "Female",
+                            GuardianName = "Rashid Siddiqui",
+                            MarksPercentage = 88.00m,
+                            PassingYear = 2025,
+                            Phone = "0345-1122334",
+                            PreviousEducation = "A-Levels Science",
+                            PreviousInstitute = "The City School PAF Chapter",
+                            Status = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Address = "Gulistan-e-Jauhar, Karachi",
+                            AdminRemarks = "Fee payment verified via bank voucher. Ready for formal student enrollment.",
+                            ApplicationNo = "NED-2026-004",
+                            AppliedDate = new DateTime(2026, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ChallanNo = "CHL-2026-8841",
+                            Cnic = "42101-7788991-3",
+                            CourseId = 1,
+                            DateOfBirth = new DateTime(2004, 7, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartmentId = 1,
+                            Email = "bilal.munir@gmail.com",
+                            FeeAmount = 65000m,
+                            FeeStatus = "Paid",
+                            FullName = "Bilal Munir",
+                            Gender = "Male",
+                            GuardianName = "Munir Akhtar",
+                            MarksPercentage = 81.30m,
+                            PassingYear = 2025,
+                            PaymentDate = new DateTime(2026, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Phone = "0315-7788990",
+                            PreviousEducation = "HSC Pre-Engineering",
+                            PreviousInstitute = "Adamjee Govt Science College",
+                            Status = 3
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Address = "Malir Cantt, Karachi",
+                            AdminRemarks = "Application rejected: Minimum 50% marks required for BBA program.",
+                            ApplicationNo = "NED-2026-005",
+                            AppliedDate = new DateTime(2026, 8, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Cnic = "42501-1122334-5",
+                            CourseId = 4,
+                            DateOfBirth = new DateTime(2003, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartmentId = 3,
+                            Email = "hassan.raza@gmail.com",
+                            FeeAmount = 50000m,
+                            FeeStatus = "Unpaid",
+                            FullName = "Hassan Raza",
+                            Gender = "Male",
+                            GuardianName = "Raza Ali",
+                            MarksPercentage = 44.00m,
+                            PassingYear = 2024,
+                            Phone = "0300-3344556",
+                            PreviousEducation = "HSC Commerce",
+                            PreviousInstitute = "Govt National College",
+                            Status = 5
+                        });
+                });
+
             modelBuilder.Entity("NedAcademy.Models.CourseModel", b =>
                 {
                     b.Property<int>("Id")
@@ -703,6 +939,32 @@ namespace NedAcademy.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NedAcademy.Models.AdmissionApplicationModel", b =>
+                {
+                    b.HasOne("NedAcademy.Models.CourseModel", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NedAcademy.Models.DepartmentModel", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NedAcademy.Models.StudentModel", "EnrolledStudent")
+                        .WithMany()
+                        .HasForeignKey("EnrolledStudentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("EnrolledStudent");
                 });
 
             modelBuilder.Entity("NedAcademy.Models.CourseModel", b =>

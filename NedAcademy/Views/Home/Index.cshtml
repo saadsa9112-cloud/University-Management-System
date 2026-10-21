@@ -1,109 +1,242 @@
 @model NedAcademy.Models.ViewModels.DashboardViewModel
 @{
-  ViewData["Title"]      = "Dashboard";
+  ViewData["Title"]      = "Executive Dashboard";
   ViewData["Breadcrumb"] = "Dashboard";
+
+  var hour = DateTime.Now.Hour;
+  var greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+  var userName = User.Identity?.Name?.Split('@')[0] ?? "Administrator";
+  var isAdmin = User.IsInRole("Admin");
 }
 
-<!-- ── STAT CARDS ── -->
-<div class="stats-grid">
+<!-- ══════════════════════════════════════════
+     HERO WELCOME BANNER
+══════════════════════════════════════════ -->
+<div class="card mb-4" style="background:linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);border:none;border-radius:var(--r-lg);color:#fff;overflow:hidden;position:relative;box-shadow:0 10px 25px -5px rgba(49,46,129,.3)">
+  <!-- Subtle decorative background rings -->
+  <div style="position:absolute;top:-40px;right:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none"></div>
+  <div style="position:absolute;bottom:-60px;right:120px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none"></div>
+
+  <div class="card-body" style="padding:28px 32px;position:relative;z-index:2">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge" style="background:rgba(255,255,255,.15);color:#fff;backdrop-filter:blur(4px);font-weight:600;padding:5px 12px;font-size:.75rem">
+            <i class="fas @(isAdmin ? "fa-shield-halved" : "fa-chalkboard-user") me-1"></i>@(isAdmin ? "Administrator Portal" : "Faculty Portal")
+          </span>
+          <span style="font-size:.8rem;color:rgba(255,255,255,.7)">
+            <i class="fas fa-calendar-day me-1"></i>@DateTime.Now.ToString("dddd, MMMM dd, yyyy")
+          </span>
+        </div>
+        <h1 style="font-size:1.85rem;font-weight:800;letter-spacing:-.02em;margin:0">
+          @greeting, @userName! 👋
+        </h1>
+        <p style="font-size:.9rem;color:rgba(255,255,255,.8);margin:6px 0 0;max-width:560px;line-height:1.5">
+          Here is your executive summary for NED Academy. Monitor student admissions, faculty roster, and campus announcements in real-time.
+        </p>
+      </div>
+
+      <!-- Quick Action Shortcuts -->
+      <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Student" asp-action="Create" class="btn" style="background:#fff;color:#312e81;font-weight:700;border-radius:var(--r-md);padding:10px 16px;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:all .2s">
+          <i class="fas fa-user-plus me-1 text-primary"></i>Enroll Student
+        </a>
+        <a asp-controller="Teacher" asp-action="Create" class="btn" style="background:rgba(255,255,255,.15);color:#fff;font-weight:600;border-radius:var(--r-md);padding:10px 16px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);transition:all .2s">
+          <i class="fas fa-chalkboard-user me-1"></i>Add Faculty
+        </a>
+        <a asp-controller="Notice" asp-action="Create" class="btn" style="background:rgba(255,255,255,.15);color:#fff;font-weight:600;border-radius:var(--r-md);padding:10px 16px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);transition:all .2s">
+          <i class="fas fa-bullhorn me-1"></i>Post Notice
+        </a>
+        @if (isAdmin)
+        {
+          <a asp-controller="UserManagement" asp-action="Index" class="btn" style="background:rgba(255,255,255,.15);color:#fff;font-weight:600;border-radius:var(--r-md);padding:10px 16px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);transition:all .2s" title="User Management">
+            <i class="fas fa-users-gear me-1"></i>Users
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TOP KPI METRICS (5 STAT CARDS)
+══════════════════════════════════════════ -->
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+
+  <!-- 1. Total Students -->
   <div class="stat-card clr-indigo">
     <div class="stat-card-top">
       <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
-      <span class="stat-pill">Active</span>
+      <div class="d-flex gap-1">
+        <span class="badge" style="background:rgba(99,102,241,.12);color:var(--primary);font-size:.7rem" title="Male students">
+          <i class="fas fa-mars me-1"></i>@Model.MaleStudentsCount
+        </span>
+        <span class="badge" style="background:rgba(236,72,153,.12);color:#db2777;font-size:.7rem" title="Female students">
+          <i class="fas fa-venus me-1"></i>@Model.FemaleStudentsCount
+        </span>
+      </div>
     </div>
-    <div class="stat-val" id="cnt-students">0</div>
-    <div class="stat-lbl">Total Students</div>
+    <div class="stat-val" id="cnt-students">@Model.TotalStudents</div>
+    <div class="stat-lbl">Enrolled Students</div>
   </div>
+
+  <!-- 2. Total Faculty -->
   <div class="stat-card clr-green">
     <div class="stat-card-top">
       <div class="stat-icon"><i class="fas fa-chalkboard-user"></i></div>
-      <span class="stat-pill">Active</span>
+      <span class="stat-pill"><i class="fas fa-circle-check me-1"></i>Active</span>
     </div>
-    <div class="stat-val" id="cnt-teachers">0</div>
-    <div class="stat-lbl">Total Teachers</div>
+    <div class="stat-val" id="cnt-teachers">@Model.TotalTeachers</div>
+    <div class="stat-lbl">Teaching Faculty</div>
   </div>
+
+  <!-- 3. Departments -->
   <div class="stat-card clr-amber">
     <div class="stat-card-top">
       <div class="stat-icon"><i class="fas fa-building-columns"></i></div>
+      <span class="badge badge-secondary" style="font-size:.7rem">Wings</span>
     </div>
-    <div class="stat-val" id="cnt-depts">0</div>
-    <div class="stat-lbl">Departments</div>
+    <div class="stat-val" id="cnt-depts">@Model.TotalDepartments</div>
+    <div class="stat-lbl">Academic Departments</div>
   </div>
+
+  <!-- 4. Courses / Programs -->
   <div class="stat-card clr-cyan">
     <div class="stat-card-top">
       <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+      <span class="badge badge-secondary" style="font-size:.7rem">Degrees</span>
     </div>
-    <div class="stat-val" id="cnt-courses">0</div>
-    <div class="stat-lbl">Courses</div>
+    <div class="stat-val" id="cnt-courses">@Model.TotalCourses</div>
+    <div class="stat-lbl">Degree Programs</div>
   </div>
+
+  <!-- 5. Total Fee Revenue -->
+  <div class="stat-card" style="border-top:3px solid #10b981">
+    <div class="stat-card-top">
+      <div class="stat-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="fas fa-money-bill-wave"></i></div>
+      <span class="badge" style="background:rgba(16,185,129,.12);color:#10b981;font-weight:700;font-size:.7rem">PKR</span>
+    </div>
+    <div class="stat-val" style="font-size:1.6rem;color:#047857" id="cnt-fees">PKR @Model.TotalRevenue.ToString("N0")</div>
+    <div class="stat-lbl">Total Fee Revenue</div>
+  </div>
+
 </div>
 
-<!-- ── CHARTS ── -->
-<div class="charts-grid">
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <div class="card-head-title">Students by Department</div>
-        <div class="card-head-sub">Current enrollment distribution</div>
-      </div>
-    </div>
-    <div class="card-body">
-      @if (!Model.DepartmentNames.Any())
-      {
-        <div class="text-center py-4 text-muted" style="font-size:.85rem">
-          <i class="fas fa-chart-simple d-block mb-2" style="font-size:1.8rem;color:var(--text-muted)"></i>
-          No department data available yet.
-        </div>
-      }
-      else
-      {
-        <canvas id="chartStudents" style="max-height:270px"></canvas>
-      }
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <div class="card-head-title">Faculty by Department</div>
-        <div class="card-head-sub">Teacher allocation</div>
-      </div>
-    </div>
-    <div class="card-body">
-      @if (!Model.DepartmentNames.Any())
-      {
-        <div class="text-center py-4 text-muted" style="font-size:.85rem">
-          <i class="fas fa-chart-pie d-block mb-2" style="font-size:1.8rem;color:var(--text-muted)"></i>
-          No department data available yet.
-        </div>
-      }
-      else
-      {
-        <canvas id="chartTeachers" style="max-height:270px"></canvas>
-      }
-    </div>
-  </div>
-</div>
+<!-- ══════════════════════════════════════════
+     CHARTS SECTION (3 INTERACTIVE CHARTS)
+══════════════════════════════════════════ -->
+<div class="row g-4 mb-4">
 
-<!-- ── RECENT DATA ── -->
-<div class="row g-4">
-  <!-- Recent Students -->
-  <div class="col-lg-8">
-    <div class="card">
-      <div class="card-head">
+  <!-- Chart 1: Students Enrollment by Department -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-head d-flex justify-content-between align-items-center">
         <div>
-          <div class="card-head-title">Recent Admissions</div>
-          <div class="card-head-sub">Latest @Model.RecentStudents.Count student enrollments</div>
+          <div class="card-head-title"><i class="fas fa-chart-column me-2" style="color:var(--primary)"></i>Admissions by Department</div>
+          <div class="card-head-sub">Active student distribution across faculties</div>
         </div>
-        <a asp-controller="Student" asp-action="Index" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-arrow-right me-1"></i>View All
+        <a asp-controller="Department" asp-action="Index" class="btn btn-sm btn-outline-secondary" style="font-size:.78rem">
+          View All
         </a>
       </div>
+      <div class="card-body">
+        @if (!Model.DepartmentNames.Any())
+        {
+          <div class="text-center py-5 text-muted" style="font-size:.85rem">
+            <i class="fas fa-chart-simple d-block mb-2" style="font-size:2rem;color:var(--text-muted)"></i>
+            No department data available yet.
+          </div>
+        }
+        else
+        {
+          <canvas id="chartStudents" style="max-height:280px"></canvas>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart 2: Gender Demographics -->
+  <div class="col-lg-3 col-md-6">
+    <div class="card h-100">
+      <div class="card-head">
+        <div class="card-head-title"><i class="fas fa-venus-mars me-2" style="color:#ec4899"></i>Gender Ratio</div>
+        <div class="card-head-sub">Male vs Female students</div>
+      </div>
+      <div class="card-body d-flex flex-column align-items-center justify-content-center">
+        @if (Model.TotalStudents == 0)
+        {
+          <div class="text-center py-4 text-muted" style="font-size:.85rem">
+            <i class="fas fa-users d-block mb-2" style="font-size:2rem;color:var(--text-muted)"></i>
+            No student data.
+          </div>
+        }
+        else
+        {
+          <div style="position:relative;width:100%;max-width:210px">
+            <canvas id="chartGender"></canvas>
+          </div>
+          <div class="d-flex justify-content-center gap-4 mt-3" style="font-size:.82rem;font-weight:600">
+            <span style="color:#6366f1"><i class="fas fa-circle me-1" style="font-size:.65rem"></i>Male: @Model.MaleStudentsCount</span>
+            <span style="color:#ec4899"><i class="fas fa-circle me-1" style="font-size:.65rem"></i>Female: @Model.FemaleStudentsCount</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart 3: Faculty Allocation -->
+  <div class="col-lg-3 col-md-6">
+    <div class="card h-100">
+      <div class="card-head">
+        <div class="card-head-title"><i class="fas fa-chart-pie me-2" style="color:#10b981"></i>Faculty Ratio</div>
+        <div class="card-head-sub">Teacher allocation</div>
+      </div>
+      <div class="card-body d-flex flex-column align-items-center justify-content-center">
+        @if (!Model.DepartmentNames.Any())
+        {
+          <div class="text-center py-4 text-muted" style="font-size:.85rem">
+            <i class="fas fa-chalkboard-user d-block mb-2" style="font-size:2rem;color:var(--text-muted)"></i>
+            No faculty data.
+          </div>
+        }
+        else
+        {
+          <div style="position:relative;width:100%;max-width:210px">
+            <canvas id="chartTeachers"></canvas>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     RECENT ADMISSIONS & CAMPUS NOTICES
+══════════════════════════════════════════ -->
+<div class="row g-4 mb-4">
+
+  <!-- Left: Recent Admissions Table (8 Cols) -->
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-head d-flex justify-content-between align-items-center">
+        <div>
+          <div class="card-head-title"><i class="fas fa-user-graduate me-2" style="color:var(--primary)"></i>Recent Student Admissions</div>
+          <div class="card-head-sub">Latest registered students &amp; program enrollments</div>
+        </div>
+        <a asp-controller="Student" asp-action="Index" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-list me-1"></i>View All Students
+        </a>
+      </div>
+
       @if (!Model.RecentStudents.Any())
       {
-        <div class="empty-state">
+        <div class="empty-state py-5 text-center">
           <div class="empty-ico"><i class="fas fa-user-graduate"></i></div>
           <p class="empty-text">No students enrolled yet.</p>
-          <a asp-controller="Student" asp-action="Create" class="btn btn-primary btn-sm">Add First Student</a>
+          <a asp-controller="Student" asp-action="Create" class="btn btn-primary btn-sm mt-2">
+            <i class="fas fa-plus me-1"></i>Add First Student
+          </a>
         </div>
       }
       else
@@ -113,9 +246,11 @@
             <thead>
               <tr>
                 <th>Student</th>
-                <th>Roll No</th>
-                <th>Department</th>
+                <th>Roll Number</th>
+                <th>Program / Dept</th>
+                <th>Fee (PKR)</th>
                 <th>Enrolled</th>
+                <th class="text-end">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -138,9 +273,24 @@
                       </div>
                     </div>
                   </td>
-                  <td><span class="badge badge-primary">@s.RollNumber</span></td>
-                  <td>@(s.Department?.Name ?? "—")</td>
-                  <td>@s.EnrollmentDate.ToString("MMM dd, yyyy")</td>
+                  <td>
+                    <span class="badge badge-primary font-monospace" style="letter-spacing:.03em">@s.RollNumber</span>
+                  </td>
+                  <td>
+                    <div style="font-weight:600;font-size:.84rem;color:var(--text-main)">@(s.Course?.Name ?? "—")</div>
+                    <div style="font-size:.74rem;color:var(--text-muted)">@(s.Department?.Name ?? "—")</div>
+                  </td>
+                  <td>
+                    <span style="font-weight:700;color:#047857;font-size:.85rem">@s.Fees.ToString("N0")</span>
+                  </td>
+                  <td>
+                    <span style="font-size:.8rem;color:var(--text-sub)">@s.EnrollmentDate.ToString("MMM dd, yyyy")</span>
+                  </td>
+                  <td class="text-end">
+                    <a asp-controller="Student" asp-action="Details" asp-route-id="@s.Id" class="btn btn-info btn-sm" title="View Student">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                  </td>
                 </tr>
               }
             </tbody>
@@ -150,21 +300,25 @@
     </div>
   </div>
 
-  <!-- Notices -->
+  <!-- Right: Campus Notice Board (4 Cols) -->
   <div class="col-lg-4">
     <div class="card h-100">
-      <div class="card-head">
+      <div class="card-head d-flex justify-content-between align-items-center">
         <div>
-          <div class="card-head-title">Latest Notices</div>
+          <div class="card-head-title"><i class="fas fa-bell me-2" style="color:var(--warning)"></i>Notice Board</div>
+          <div class="card-head-sub">Campus alerts &amp; announcements</div>
         </div>
-        <a asp-controller="Notice" asp-action="Index" class="btn btn-outline-primary btn-sm">View All</a>
+        <a asp-controller="Notice" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+          View All
+        </a>
       </div>
-      <div class="card-body" style="padding:16px">
+
+      <div class="card-body" style="padding:18px">
         @if (!Model.RecentNotices.Any())
         {
-          <div class="text-center py-4">
-            <i class="fas fa-bell" style="font-size:2rem;color:var(--text-muted)"></i>
-            <p class="text-muted mt-3" style="font-size:.85rem">No notices published yet.</p>
+          <div class="text-center py-5 text-muted">
+            <i class="fas fa-bell-slash d-block mb-3" style="font-size:2.2rem;color:var(--text-muted)"></i>
+            <p style="font-size:.85rem;margin:0">No active notices published yet.</p>
           </div>
         }
         else
@@ -172,37 +326,106 @@
           <div class="d-flex flex-column gap-3">
             @foreach (var n in Model.RecentNotices)
             {
-              <div class="notice-card">
-                <div class="d-flex gap-3">
+              <div class="notice-card" style="padding:14px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--body-bg);transition:var(--transition-s)">
+                <div class="d-flex align-items-start gap-2 mb-1">
                   <div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:6px"></div>
-                  <div>
-                    <div class="fw-700" style="font-size:.88rem">@n.Title</div>
-                    <div style="font-size:.78rem;color:var(--text-sub);margin-top:3px">
-                      @(n.Content.Length > 85 ? n.Content.Substring(0, 85) + "…" : n.Content)
-                    </div>
-                    <div style="font-size:.72rem;color:var(--text-muted);margin-top:6px">
-                      <i class="fas fa-calendar-alt me-1"></i>@n.PublishedDate.ToString("MMM dd, yyyy")
-                    </div>
+                  <div style="font-weight:700;font-size:.87rem;color:var(--text-main);line-height:1.35">
+                    @n.Title
                   </div>
+                </div>
+                <p style="font-size:.78rem;color:var(--text-sub);line-height:1.5;margin:6px 0 8px 16px">
+                  @(n.Content.Length > 90 ? n.Content.Substring(0, 90) + "…" : n.Content)
+                </p>
+                <div class="d-flex justify-content-between align-items-center" style="margin-left:16px;font-size:.72rem;color:var(--text-muted)">
+                  <span><i class="fas fa-calendar-alt me-1"></i>@n.PublishedDate.ToString("MMM dd, yyyy")</span>
+                  <a asp-controller="Notice" asp-action="Details" asp-route-id="@n.Id" style="color:var(--primary);font-weight:600;text-decoration:none">
+                    Read <i class="fas fa-chevron-right ms-1" style="font-size:.6rem"></i>
+                  </a>
                 </div>
               </div>
             }
           </div>
         }
       </div>
-      <div class="card-foot text-center">
+
+      <div class="card-foot text-center" style="border-top:1px solid var(--border);padding:12px 18px">
         <a asp-controller="Notice" asp-action="Create" class="btn btn-primary btn-sm w-100">
-          <i class="fas fa-plus me-1"></i>Post New Notice
+          <i class="fas fa-plus me-1"></i>Publish Announcement
         </a>
       </div>
     </div>
   </div>
+
 </div>
 
+<!-- ══════════════════════════════════════════
+     FAST SHORTCUTS & NAVIGATION GRID
+══════════════════════════════════════════ -->
+<div class="row g-3">
+  <div class="col-md-3 col-sm-6">
+    <a asp-controller="Student" asp-action="Index" class="card text-decoration-none" style="transition:all .2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+      <div class="card-body p-3 d-flex align-items-center gap-3">
+        <div style="width:44px;height:44px;border-radius:var(--r-sm);background:rgba(99,102,241,.1);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.2rem">
+          <i class="fas fa-users"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--text-main)">Students Roster</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">Search &amp; Manage Enrolled</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-sm-6">
+    <a asp-controller="Teacher" asp-action="Index" class="card text-decoration-none" style="transition:all .2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--success)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+      <div class="card-body p-3 d-flex align-items-center gap-3">
+        <div style="width:44px;height:44px;border-radius:var(--r-sm);background:var(--success-bg);display:flex;align-items:center;justify-content:center;color:var(--success);font-size:1.2rem">
+          <i class="fas fa-chalkboard-user"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--text-main)">Faculty Directory</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">Professors &amp; Lecturers</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-sm-6">
+    <a asp-controller="Course" asp-action="Index" class="card text-decoration-none" style="transition:all .2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--info)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+      <div class="card-body p-3 d-flex align-items-center gap-3">
+        <div style="width:44px;height:44px;border-radius:var(--r-sm);background:var(--info-bg);display:flex;align-items:center;justify-content:center;color:var(--info);font-size:1.2rem">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--text-main)">Academic Programs</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">Degrees &amp; Credit Hours</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-sm-6">
+    <a asp-controller="Department" asp-action="Index" class="card text-decoration-none" style="transition:all .2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--warning)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+      <div class="card-body p-3 d-flex align-items-center gap-3">
+        <div style="width:44px;height:44px;border-radius:var(--r-sm);background:var(--warning-bg);display:flex;align-items:center;justify-content:center;color:var(--warning);font-size:1.2rem">
+          <i class="fas fa-building-columns"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--text-main)">Departments</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">Divisions &amp; Head of Depts</div>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS & CHART ENGINE
+══════════════════════════════════════════ -->
 @section Scripts {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Counter animations
+  // Animated counters
   animateCounter(document.getElementById('cnt-students'), @Model.TotalStudents);
   animateCounter(document.getElementById('cnt-teachers'), @Model.TotalTeachers);
   animateCounter(document.getElementById('cnt-depts'),    @Model.TotalDepartments);
@@ -211,35 +434,106 @@ document.addEventListener('DOMContentLoaded', function () {
   const deptNames  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DepartmentNames));
   const studData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StudentsByDepartment));
   const teachData  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TeachersByDepartment));
-  const palette    = ['rgba(99,102,241,.82)','rgba(139,92,246,.82)','rgba(6,182,212,.82)','rgba(16,185,129,.82)','rgba(245,158,11,.82)'];
+  const palette    = ['rgba(99,102,241,.85)','rgba(16,185,129,.85)','rgba(245,158,11,.85)','rgba(6,182,212,.85)','rgba(236,72,153,.85)','rgba(139,92,246,.85)'];
 
+  // 1. Bar Chart: Students by Department
   if (deptNames && deptNames.length > 0) {
     const elStud = document.getElementById('chartStudents');
     if (elStud) {
       new Chart(elStud, {
         type: 'bar',
-        data: { labels: deptNames, datasets: [{ label:'Students', data: studData, backgroundColor: palette, borderRadius:6, borderSkipped:false }] },
+        data: {
+          labels: deptNames,
+          datasets: [{
+            label: 'Enrolled Students',
+            data: studData,
+            backgroundColor: palette,
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
         options: {
-          responsive:true,
-          plugins:{ legend:{display:false} },
-          scales:{
-            y:{ beginAtZero:true, ticks:{ stepSize:1, font:{family:'Inter',size:11} }, grid:{color:'rgba(0,0,0,.04)'} },
-            x:{ ticks:{ font:{family:'Inter',size:11} }, grid:{display:false} }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e1b4b',
+              padding: 10,
+              titleFont: { family: 'Inter', size: 12, weight: 'bold' },
+              bodyFont: { family: 'Inter', size: 11 }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, font: { family: 'Inter', size: 11 } },
+              grid: { color: 'rgba(0,0,0,.04)' }
+            },
+            x: {
+              ticks: { font: { family: 'Inter', size: 11 } },
+              grid: { display: false }
+            }
           }
         }
       });
     }
 
+    // 2. Gender Doughnut Chart
+    const elGender = document.getElementById('chartGender');
+    if (elGender) {
+      new Chart(elGender, {
+        type: 'doughnut',
+        data: {
+          labels: ['Male', 'Female'],
+          datasets: [{
+            data: [@Model.MaleStudentsCount, @Model.FemaleStudentsCount],
+            backgroundColor: ['#6366f1', '#ec4899'],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '68%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e1b4b',
+              padding: 10,
+              bodyFont: { family: 'Inter', size: 12 }
+            }
+          }
+        }
+      });
+    }
+
+    // 3. Faculty Allocation Doughnut Chart
     const elTeach = document.getElementById('chartTeachers');
     if (elTeach) {
       new Chart(elTeach, {
         type: 'doughnut',
-        data: { labels: deptNames, datasets: [{ data: teachData, backgroundColor: palette, borderWidth:0, hoverOffset:5 }] },
+        data: {
+          labels: deptNames,
+          datasets: [{
+            data: teachData,
+            backgroundColor: palette,
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
         options: {
-          responsive:true,
-          cutout:'62%',
-          plugins:{
-            legend:{ position:'bottom', labels:{ font:{family:'Inter',size:11}, padding:14, usePointStyle:true } }
+          responsive: true,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: { family: 'Inter', size: 10 },
+                boxWidth: 10,
+                padding: 10
+              }
+            }
           }
         }
       });
