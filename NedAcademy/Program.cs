@@ -27,7 +27,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 });
@@ -44,15 +44,24 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Root path redirects to Login (or UserManagement/Home if logged in)
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/Account/Login");
+    return Task.CompletedTask;
+});
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // ── Seed Admin User ───────────────────────────────────────────────────────────
 

@@ -44,6 +44,9 @@ namespace NedAcademy.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(CourseModel course)
         {
+            if (course.DepartmentId > 0 && !_db.Departments.Any(d => d.Id == course.DepartmentId))
+                ModelState.AddModelError("DepartmentId", "Selected department does not exist.");
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Departments = _db.Departments.ToList();
@@ -68,6 +71,9 @@ namespace NedAcademy.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(CourseModel course)
         {
+            if (course.DepartmentId > 0 && !_db.Departments.Any(d => d.Id == course.DepartmentId))
+                ModelState.AddModelError("DepartmentId", "Selected department does not exist.");
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Departments = _db.Departments.ToList();

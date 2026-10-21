@@ -42,6 +42,7 @@ namespace NedAcademy.Models
 
         // Foreign Key
         [Required(ErrorMessage = "Department is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid Department")]
         [Display(Name = "Department")]
         public int DepartmentId { get; set; }
         public DepartmentModel? Department { get; set; }

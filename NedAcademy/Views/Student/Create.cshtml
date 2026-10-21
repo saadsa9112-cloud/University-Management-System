@@ -12,6 +12,19 @@
   <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
 </div>
 
+@if (!(ViewBag.Departments is IEnumerable<dynamic> depts && depts.Any()))
+{
+  <div class="alert alert-warning mb-3">
+    <i class="fas fa-triangle-exclamation me-2"></i><strong>Notice:</strong> No departments are available yet. Please <a asp-controller="Department" asp-action="Create" class="alert-link">create a department</a> first.
+  </div>
+}
+@if (!(ViewBag.Courses is IEnumerable<dynamic> crss && crss.Any()))
+{
+  <div class="alert alert-warning mb-3">
+    <i class="fas fa-triangle-exclamation me-2"></i><strong>Notice:</strong> No courses are available yet. Please <a asp-controller="Course" asp-action="Create" class="alert-link">create a course</a> first.
+  </div>
+}
+
 <form asp-action="Create" method="post" enctype="multipart/form-data">
   <div class="row g-4">
 

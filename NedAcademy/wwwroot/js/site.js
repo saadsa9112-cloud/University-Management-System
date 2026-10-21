@@ -69,7 +69,17 @@ window.showLoading = () => overlay?.classList.add('show');
 window.hideLoading = () => overlay?.classList.remove('show');
 
 document.addEventListener('submit', e => {
-  if (!e.target.hasAttribute('data-no-loading')) showLoading();
+  if (e.defaultPrevented) return;
+  if (!e.target || e.target.tagName !== 'FORM') return;
+  if (e.target.hasAttribute('data-no-loading')) return;
+
+  // Only trigger loading overlay if form passed validation
+  if (window.jQuery && $(e.target).data('validator')) {
+    if (!$(e.target).valid()) return;
+  } else if (e.target.checkValidity && !e.target.checkValidity()) {
+    return;
+  }
+  showLoading();
 });
 
 // ════════════════════════════════════════════

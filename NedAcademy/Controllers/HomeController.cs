@@ -52,10 +52,25 @@ namespace NedAcademy.Controllers
             return View(vm);
         }
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(int? statusCode = null)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var code = statusCode ?? HttpContext.Response.StatusCode;
+            string msg = code switch
+            {
+                404 => "The page or record you requested could not be found.",
+                403 => "You do not have permission to access this resource.",
+                500 => "An unexpected server error occurred.",
+                _ => "An unexpected issue occurred while processing your request."
+            };
+
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                StatusCode = code,
+                Message = msg
+            });
         }
     }
 }

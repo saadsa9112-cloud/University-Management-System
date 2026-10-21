@@ -42,6 +42,19 @@ namespace NedAcademy.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(TeacherModel teacher, IFormFile? imageFile)
         {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(imageFile.FileName).ToLower();
+                var allowedExts = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+                if (!allowedExts.Contains(ext))
+                    ModelState.AddModelError(string.Empty, "Invalid photo format. Only JPG, PNG, WEBP, or GIF are allowed.");
+                else if (imageFile.Length > 5 * 1024 * 1024)
+                    ModelState.AddModelError(string.Empty, "Photo size cannot exceed 5MB.");
+            }
+
+            if (teacher.DepartmentId > 0 && !_db.Departments.Any(d => d.Id == teacher.DepartmentId))
+                ModelState.AddModelError("DepartmentId", "Selected department does not exist.");
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Departments = _db.Departments.ToList();
@@ -68,6 +81,19 @@ namespace NedAcademy.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(TeacherModel teacher, IFormFile? imageFile)
         {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(imageFile.FileName).ToLower();
+                var allowedExts = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+                if (!allowedExts.Contains(ext))
+                    ModelState.AddModelError(string.Empty, "Invalid photo format. Only JPG, PNG, WEBP, or GIF are allowed.");
+                else if (imageFile.Length > 5 * 1024 * 1024)
+                    ModelState.AddModelError(string.Empty, "Photo size cannot exceed 5MB.");
+            }
+
+            if (teacher.DepartmentId > 0 && !_db.Departments.Any(d => d.Id == teacher.DepartmentId))
+                ModelState.AddModelError("DepartmentId", "Selected department does not exist.");
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Departments = _db.Departments.ToList();

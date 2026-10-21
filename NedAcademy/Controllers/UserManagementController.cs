@@ -91,16 +91,20 @@ namespace NedAcademy.Controllers
             return View(model);
         }
 
-        // GET: /UserManagement/CreateStaff
+        // GET: /UserManagement/CreateUser (or /UserManagement/CreateStaff)
         [HttpGet]
+        [Route("UserManagement/CreateUser")]
+        [Route("UserManagement/CreateStaff")]
         public IActionResult CreateStaff()
         {
-            return View();
+            return View("CreateStaff");
         }
 
-        // POST: /UserManagement/CreateStaff
+        // POST: /UserManagement/CreateUser (or /UserManagement/CreateStaff)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("UserManagement/CreateUser")]
+        [Route("UserManagement/CreateStaff")]
         public async Task<IActionResult> CreateStaff(CreateUserViewModel model)
         {
             if (!ModelState.IsValid)

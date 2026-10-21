@@ -132,10 +132,10 @@
     {
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="user-av">@(User.Identity.Name?.Substring(0,1).ToUpper() ?? "A")</div>
+          <div class="user-av">@(User.Identity.Name?.Substring(0,1).ToUpper() ?? "U")</div>
           <div class="user-info-wrap">
-            <div class="user-nm">@(User.Identity.Name?.Split('@')[0] ?? "Admin")</div>
-            <div class="user-rl">Administrator</div>
+            <div class="user-nm">@(User.Identity.Name?.Split('@')[0] ?? "User")</div>
+            <div class="user-rl">@(User.IsInRole("Admin") ? "Administrator" : "Faculty")</div>
           </div>
         </div>
       </div>
@@ -180,17 +180,17 @@
         {
           <div class="dropdown">
             <div class="nav-user" data-bs-toggle="dropdown" aria-expanded="false">
-              <div class="nav-user-av">@(User.Identity.Name?.Substring(0,1).ToUpper() ?? "A")</div>
+              <div class="nav-user-av">@(User.Identity.Name?.Substring(0,1).ToUpper() ?? "U")</div>
               <div class="d-none d-md-block">
-                <div class="nav-user-nm">@(User.Identity.Name?.Split('@')[0] ?? "Admin")</div>
-                <div class="nav-user-rl">Administrator</div>
+                <div class="nav-user-nm">@(User.Identity.Name?.Split('@')[0] ?? "User")</div>
+                <div class="nav-user-rl">@(User.IsInRole("Admin") ? "Administrator" : "Faculty")</div>
               </div>
               <i class="fas fa-chevron-down ms-2" style="font-size:.65rem;color:var(--text-muted)"></i>
             </div>
             <ul class="dropdown-menu dropdown-menu-end shadow">
               <li class="px-3 py-2 border-bottom">
                 <div style="font-size:.78rem;font-weight:700;color:var(--text-main)">@User.Identity.Name</div>
-                <div style="font-size:.7rem;color:var(--text-muted)">Administrator</div>
+                <div style="font-size:.7rem;color:var(--text-muted)">@(User.IsInRole("Admin") ? "Administrator" : "Faculty")</div>
               </li>
               <li>
                 <form asp-controller="Account" asp-action="Logout" method="post" data-no-loading>

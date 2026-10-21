@@ -48,7 +48,17 @@
       </div>
     </div>
     <div class="card-body">
-      <canvas id="chartStudents" style="max-height:270px"></canvas>
+      @if (!Model.DepartmentNames.Any())
+      {
+        <div class="text-center py-4 text-muted" style="font-size:.85rem">
+          <i class="fas fa-chart-simple d-block mb-2" style="font-size:1.8rem;color:var(--text-muted)"></i>
+          No department data available yet.
+        </div>
+      }
+      else
+      {
+        <canvas id="chartStudents" style="max-height:270px"></canvas>
+      }
     </div>
   </div>
   <div class="card">
@@ -59,7 +69,17 @@
       </div>
     </div>
     <div class="card-body">
-      <canvas id="chartTeachers" style="max-height:270px"></canvas>
+      @if (!Model.DepartmentNames.Any())
+      {
+        <div class="text-center py-4 text-muted" style="font-size:.85rem">
+          <i class="fas fa-chart-pie d-block mb-2" style="font-size:1.8rem;color:var(--text-muted)"></i>
+          No department data available yet.
+        </div>
+      }
+      else
+      {
+        <canvas id="chartTeachers" style="max-height:270px"></canvas>
+      }
     </div>
   </div>
 </div>
@@ -193,32 +213,38 @@ document.addEventListener('DOMContentLoaded', function () {
   const teachData  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TeachersByDepartment));
   const palette    = ['rgba(99,102,241,.82)','rgba(139,92,246,.82)','rgba(6,182,212,.82)','rgba(16,185,129,.82)','rgba(245,158,11,.82)'];
 
-  // Bar chart – students by department
-  new Chart(document.getElementById('chartStudents'), {
-    type: 'bar',
-    data: { labels: deptNames, datasets: [{ label:'Students', data: studData, backgroundColor: palette, borderRadius:6, borderSkipped:false }] },
-    options: {
-      responsive:true,
-      plugins:{ legend:{display:false} },
-      scales:{
-        y:{ beginAtZero:true, ticks:{ stepSize:1, font:{family:'Inter',size:11} }, grid:{color:'rgba(0,0,0,.04)'} },
-        x:{ ticks:{ font:{family:'Inter',size:11} }, grid:{display:false} }
-      }
+  if (deptNames && deptNames.length > 0) {
+    const elStud = document.getElementById('chartStudents');
+    if (elStud) {
+      new Chart(elStud, {
+        type: 'bar',
+        data: { labels: deptNames, datasets: [{ label:'Students', data: studData, backgroundColor: palette, borderRadius:6, borderSkipped:false }] },
+        options: {
+          responsive:true,
+          plugins:{ legend:{display:false} },
+          scales:{
+            y:{ beginAtZero:true, ticks:{ stepSize:1, font:{family:'Inter',size:11} }, grid:{color:'rgba(0,0,0,.04)'} },
+            x:{ ticks:{ font:{family:'Inter',size:11} }, grid:{display:false} }
+          }
+        }
+      });
     }
-  });
 
-  // Doughnut chart – teachers by department
-  new Chart(document.getElementById('chartTeachers'), {
-    type: 'doughnut',
-    data: { labels: deptNames, datasets: [{ data: teachData, backgroundColor: palette, borderWidth:0, hoverOffset:5 }] },
-    options: {
-      responsive:true,
-      cutout:'62%',
-      plugins:{
-        legend:{ position:'bottom', labels:{ font:{family:'Inter',size:11}, padding:14, usePointStyle:true } }
-      }
+    const elTeach = document.getElementById('chartTeachers');
+    if (elTeach) {
+      new Chart(elTeach, {
+        type: 'doughnut',
+        data: { labels: deptNames, datasets: [{ data: teachData, backgroundColor: palette, borderWidth:0, hoverOffset:5 }] },
+        options: {
+          responsive:true,
+          cutout:'62%',
+          plugins:{
+            legend:{ position:'bottom', labels:{ font:{family:'Inter',size:11}, padding:14, usePointStyle:true } }
+          }
+        }
+      });
     }
-  });
+  }
 });
 </script>
 }
