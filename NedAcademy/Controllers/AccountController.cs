@@ -25,10 +25,20 @@ namespace NedAcademy.Controllers
 
         // GET: /Account/Login
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public async Task<IActionResult> Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
-                return RedirectToAction("Index", "Home");
+            {
+                var user = await _userManager.GetUserAsync(User);
+                // Only redirect if the user is truly valid in DB and was not redirected here with a ReturnUrl
+                if (user != null && string.IsNullOrEmpty(returnUrl))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // If cookie is stale, user was deleted, or authentication failed, clear stale cookie
+                await _signInManager.SignOutAsync();
+            }
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -82,10 +92,15 @@ namespace NedAcademy.Controllers
 
         // GET: /Account/Register
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
             if (User.Identity?.IsAuthenticated == true)
-                return RedirectToAction("Index", "Home");
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                    return RedirectToAction("Index", "Home");
+                await _signInManager.SignOutAsync();
+            }
             return View();
         }
 
